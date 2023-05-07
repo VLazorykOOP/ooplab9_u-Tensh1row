@@ -1,0 +1,141 @@
+//Example1
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <map>
+#include <algorithm>
+ 
+struct Visit {
+    int clientCode;
+    int duration;
+    int month;
+    int year;
+};
+ 
+bool compareMonths(const std::pair<int, int>& month1, const std::pair<int, int>& month2) {
+    if (month1.second == month2.second) {
+        return month1.first < month2.first;
+    }
+    return month1.second > month2.second;
+}
+ 
+void processClientData(const std::vector<Visit>& visits, int clientCode, std::ofstream& outputFile) {
+    std::map<int, int> monthsCount;
+ 
+    for (const Visit& visit : visits) {
+        if (visit.clientCode == clientCode && visit.duration > 15) {
+            monthsCount[visit.year]++;
+        }
+    }
+ 
+    if (monthsCount.empty()) {
+        outputFile << "Немає даних" << std::endl;
+        return;
+    }
+ 
+    std::vector<std::pair<int, int>> sortedMonths(monthsCount.begin(), monthsCount.end());
+    std::sort(sortedMonths.begin(), sortedMonths.end(), compareMonths);
+ 
+    for (const auto& month : sortedMonths) {
+        outputFile << month.second << " " << month.first << std::endl;
+    }
+}
+ 
+int main() {
+    // Зчитування вхідних даних з файлу
+    std::ifstream inputFile("input.txt");
+    std::ofstream outputFile("output.txt");
+ 
+    int clientCode;
+    std::vector<Visit> visits;
+ 
+    while (inputFile >> clientCode) {
+        Visit visit;
+        inputFile >> visit.duration >> visit.month >> visit.year;
+        visit.clientCode = clientCode;
+        visits.push_back(visit);
+    }
+ 
+    inputFile.close();
+ 
+    // Обробка даних для заданого клієнта
+    int targetClientCode = 643637; 
+    processClientData(visits, targetClientCode, outputFile);
+ 
+    outputFile.close();
+ 
+    return 0;
+}
+//Example2
+#include <iostream>
+#include <vector>
+#include <algorithm>
+ 
+struct IsPositive {
+    bool operator()(int num) const {
+        return num > 0;
+    }
+};
+ 
+void duplicatePositiveNumbers(std::vector<int>& v, int k) {
+    auto it = std::search_n(v.begin(), v.end(), k, 1, IsPositive());
+ 
+    if (it != v.end()) {
+        std::vector<int> subset(it, it + k);
+        v.insert(it, subset.begin(), subset.end());
+    }
+}
+ 
+int main() {
+    // Приклад вхідного вектора
+    std::vector<int> v = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+ 
+    int k = 3; // Кількість позитивних чисел для дублювання
+ 
+    duplicatePositiveNumbers(v, k);
+ 
+    // Виведення результату
+    for (int num : v) {
+        std::cout << num << " ";
+    }
+    std::cout << std::endl;
+ 
+    return 0;
+}
+//Example3
+#include <iostream>
+#include <vector>
+#include <algorithm>
+ 
+std::vector<int> getUniqueElementsExceptMinMax(const std::vector<int>& v) {
+    // Копіюємо вхідний вектор
+    std::vector<int> copy = v;
+ 
+    // Сортуємо вектор у порядку спадання
+    std::sort(copy.begin(), copy.end(), std::greater<int>());
+ 
+    // Видаляємо максимальний та мінімальний елементи
+    copy.erase(copy.begin());
+    copy.pop_back();
+ 
+    // Видаляємо повторюючіся елементи
+    copy.erase(std::unique(copy.begin(), copy.end()), copy.end());
+ 
+    return copy;
+}
+ 
+int main() {
+    // Приклад вхідного вектора
+    std::vector<int> input = {5, 2, 8, 1, 4, 2, 7};
+ 
+    // Отримуємо унікальні елементи, крім максимального та мінімального
+    std::vector<int> result = getUniqueElementsExceptMinMax(input);
+ 
+    // Виводимо результат
+    for (int num : result) {
+        std::cout << num << " ";
+    }
+    std::cout << std::endl;
+ 
+    return 0;
+}
